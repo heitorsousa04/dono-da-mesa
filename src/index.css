@@ -1,5 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Bebas+Neue&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --color-pool-bg: #0f1a12;
+  --color-pool-card: #1a2e1e;
+  --color-pool-border: #2d5a35;
+  --color-pool-green: #2d7a3a;
+  --color-pool-light: #39c45a;
+  --color-pool-neon: #4ddd6f;
+  --color-pool-yellow: #f0c040;
+  --color-pool-red: #e05050;
+  --color-pool-blue: #4a9aee;
+  --color-pool-text: #e8f0ea;
+  --color-pool-muted: #8aaa90;
+
+  --font-title: 'Bebas Neue', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-cond: 'Barlow Condensed', sans-serif;
+}
+
+html, body {
+  @apply bg-pool-bg text-pool-text font-body antialiased selection:bg-pool-neon selection:text-pool-bg overflow-x-hidden;
+}
+
+.font-condensed {
+  font-family: var(--font-cond);
+}
 
 @theme {
   --color-pool-bg: #0f1a12;

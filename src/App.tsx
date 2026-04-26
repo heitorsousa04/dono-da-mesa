@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { chapters, Chapter } from './data';
+import { chapters, sections, Chapter } from './data';
 import { Menu, X, Check, ArrowRight, Lightbulb, AlertTriangle, PlayCircle } from 'lucide-react';
 import { Diagram } from './components/Diagram';
 
@@ -25,7 +25,7 @@ export default function App() {
           </div>
           
           <h1 className="font-title text-7xl md:text-[10rem] leading-[0.85] tracking-tight text-white mb-6 drop-shadow-2xl opacity-95">
-            DONO DA <span className="text-pool-yellow block md:inline mt-2 md:mt-0">MESA</span>
+            TACO <span className="text-pool-yellow block md:inline mt-2 md:mt-0">FORTE</span>
           </h1>
           
           <div className="w-24 h-1 bg-pool-border mb-10 opacity-50"></div>
@@ -46,8 +46,10 @@ export default function App() {
     );
   }
 
-  const chapter: Chapter = chapters[currentChapter - 1];
-  const progressPercent = (currentChapter / chapters.length) * 100;
+  const chapter: Chapter = chapters.find(c => c.id === currentChapter) || chapters[0];
+  const currentSection = sections.find(s => s.chapters.some(c => c.id === currentChapter)) || sections[0];
+  const currentLocalIndex = currentSection.chapters.findIndex(c => c.id === currentChapter);
+  const progressPercent = ((chapters.findIndex(c => c.id === currentChapter) + 1) / chapters.length) * 100;
 
   return (
     <div className="min-h-screen bg-pool-bg flex flex-col md:flex-row">
@@ -57,7 +59,7 @@ export default function App() {
           <div className="w-6 h-6 rounded-full bg-pool-text flex items-center justify-center">
             <span className="text-pool-bg font-title text-xs font-bold leading-none mt-0.5">8</span>
           </div>
-          DONO DA MESA
+          TACO FORTE
         </div>
         <button onClick={() => setMenuOpen(!menuOpen)} className="text-pool-text p-1">
           {menuOpen ? <X /> : <Menu />}
@@ -75,32 +77,37 @@ export default function App() {
             <span className="text-pool-bg font-title text-base font-bold leading-none mt-0.5">8</span>
           </div>
           <h2 className="font-title text-3xl tracking-widest text-pool-text cursor-pointer hover:text-pool-light transition-colors" onClick={() => setCurrentChapter(0)}>
-            DONO DA MESA
+            TACO FORTE
           </h2>
         </div>
-        <div className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-pool-border">
-          <ul className="space-y-1 px-3">
-            {chapters.map((c) => (
-              <li key={c.id}>
-                <button
-                  onClick={() => {
-                    setCurrentChapter(c.id);
-                    setMenuOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-condensed text-lg transition-all duration-200 group flex items-center gap-3 ${
-                    currentChapter === c.id 
-                      ? 'bg-pool-green/20 text-pool-neon border border-pool-green/50 shadow-inner' 
-                      : 'text-pool-muted hover:text-pool-text hover:bg-pool-border/30'
-                  }`}
-                >
-                  <span className={`text-sm font-body font-bold w-6 text-center opacity-70 ${currentChapter === c.id ? 'text-pool-neon' : ''}`}>
-                    {c.id.toString().padStart(2, '0')}
-                  </span>
-                  <span className="truncate flex-1 tracking-wide">{c.title}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+        <div className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-pool-border space-y-6">
+          {sections.map((section) => (
+            <div key={section.id} className="px-3">
+              <h3 className="font-condensed font-bold text-pool-muted text-sm uppercase tracking-widest pl-4 mb-2">{section.title}</h3>
+              <ul className="space-y-1">
+                {section.chapters.map((c, i) => (
+                  <li key={c.id}>
+                    <button
+                      onClick={() => {
+                        setCurrentChapter(c.id as number);
+                        setMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 rounded-xl font-condensed text-lg transition-all duration-200 group flex items-center gap-3 ${
+                        currentChapter === c.id 
+                          ? 'bg-pool-green/20 text-pool-neon border border-pool-green/50 shadow-inner' 
+                          : 'text-pool-muted hover:text-pool-text hover:bg-pool-border/30'
+                      }`}
+                    >
+                      <span className={`text-sm font-body font-bold w-6 text-center opacity-70 ${currentChapter === c.id ? 'text-pool-neon' : ''}`}>
+                        {(i + 1).toString().padStart(2, '0')}
+                      </span>
+                      <span className="truncate flex-1 tracking-wide">{c.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </nav>
 
@@ -117,7 +124,7 @@ export default function App() {
         <div className="p-6 md:p-12 lg:p-20 max-w-4xl mx-auto w-full pb-32">
           <header className="mb-12">
             <div className="inline-block px-3 py-1 bg-pool-border/50 text-pool-muted font-condensed tracking-widest text-sm rounded-md mb-6 uppercase border border-pool-border">
-              Capítulo {chapter.id.toString().padStart(2, '0')} de {chapters.length}
+              {currentSection.title} • Capítulo {(currentLocalIndex + 1).toString().padStart(2, '0')} de {currentSection.chapters.length}
             </div>
             <h1 className="font-title text-5xl md:text-7xl mb-6 leading-none tracking-tight">
               {chapter.title}
@@ -175,10 +182,10 @@ export default function App() {
             )}
           </div>
 
-          {currentChapter < chapters.length ? (
+          {chapters.findIndex(c => c.id === currentChapter) < chapters.length - 1 ? (
             <div className="flex justify-end mt-16 pt-8 border-t border-pool-border">
               <button 
-                onClick={() => setCurrentChapter(currentChapter + 1)}
+                onClick={() => setCurrentChapter(chapters[chapters.findIndex(c => c.id === currentChapter) + 1].id as number)}
                 className="group inline-flex items-center justify-center p-1 font-body text-lg font-bold text-pool-text bg-transparent hover:bg-pool-card rounded-full overflow-hidden transition-all border border-pool-border hover:border-pool-light pr-6"
               >
                 <div className="w-12 h-12 rounded-full bg-pool-light flex items-center justify-center mr-4 group-hover:scale-105 transition-transform">
@@ -190,7 +197,7 @@ export default function App() {
           ) : (
              <div className="flex justify-end mt-16 pt-8 border-t border-pool-border">
               <div className="inline-flex items-center px-8 py-4 bg-pool-green text-pool-bg font-title text-2xl tracking-widest rounded-xl shadow-[0_0_30px_rgba(45,122,58,0.4)]">
-                 VOCÊ É O DONO DA MESA!
+                 VOCÊ É O TACO FORTE!
               </div>
              </div>
           )}
